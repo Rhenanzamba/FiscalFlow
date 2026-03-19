@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(curl -s -X POST http://localhost:3000/webhook/nfe -H \"Content-Type: application/json\" -d '{:*)",
+      "Bash(curl -s -X DELETE http://localhost:3000/api/notas/purge-all -H \"X-Confirm: PURGE\")",
+      "Bash(curl -s -X POST http://localhost:3000/webhook/nfe -H \"Content-Type: application/json\" -d '{\"\"fornecedor\"\":\"\"TESTE SA\"\",\"\"cnpj\"\":\"\"11.222.333/0001-44\"\",\"\"numero\"\":\"\"999\"\",\"\"serie\"\":\"\"1\"\",\"\"chaveAcesso\"\":\"\"11222233300014455001000009991234567890123456\"\",\"\"data\"\":\"\"2026-03-19T10:00:00-03:00\"\",\"\"naturezaOperacao\"\":\"\"VENDA\"\",\"\"tipoOperacao\"\":\"\"Entrada\"\",\"\"valorRaw\"\":5000,\"\"valorProdutos\"\":5000,\"\"valorICMS\"\":600,\"\"valorFrete\"\":200,\"\"valorDesconto\"\":0,\"\"destinatario\"\":\"\"EMPRESA X\"\",\"\"destinatarioCnpj\"\":\"\"99.888.777/0001-66\"\",\"\"email\"\":\"\"test@test.com\"\",\"\"assunto\"\":\"\"NFe teste\"\",\"\"received\"\":\"\"19/03/2026\"\",\"\"temXml\"\":true,\"\"temPdf\"\":true,\"\"origem\"\":\"\"n8n\"\",\"\"parseSuccess\"\":true,\"\"source\"\":\"\"xml\"\",\"\"protocolo\"\":\"\"123456\"\",\"\"totalProdutos\"\":1,\"\"produtos\"\":[{\"\"descricao\"\":\"\"ITEM TESTE\"\",\"\"qtd\"\":10,\"\"un\"\":\"\"UN\"\",\"\"vUnit\"\":500,\"\"vTotal\"\":5000,\"\"ncm\"\":\"\"12345678\"\",\"\"cfop\"\":\"\"5102\"\"}]}')"
+    ]
+  }
+}
