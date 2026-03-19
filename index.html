@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self';">
+  <title>FiscalFlow Enterprise — Dashboard NFe</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧾</text></svg>">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    :root {
+      --bg: #060910; --surface: #0f1321; --surface2: #161d2f; --surface3: #1c2540;
+      --border: #1a2038; --border2: #263354; --border-hover: #3b4f80;
+      --text: #e8ecf4; --text2: #8b99b8; --text3: #5a6a8a;
+      --accent: #6366f1; --accent2: #818cf8; --accent3: #a5b4fc; --accent-glow: rgba(99,102,241,0.12);
+      --green: #10b981; --green-bg: rgba(16,185,129,0.08); --green2: #34d399;
+      --red: #ef4444; --red-bg: rgba(239,68,68,0.08); --red2: #f87171;
+      --yellow: #f59e0b; --yellow-bg: rgba(245,158,11,0.08);
+      --blue: #3b82f6; --blue-bg: rgba(59,130,246,0.08);
+      --cyan: #06b6d4; --cyan-bg: rgba(6,182,212,0.08);
+      --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+      --shadow: 0 8px 32px rgba(0,0,0,0.4); --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+    /* ─── SIDEBAR ────────────── */
+    .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 260px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 100; transition: transform 0.3s; }
+    .sidebar-logo { padding: 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+    .sidebar-logo-icon { width: 42px; height: 42px; background: linear-gradient(135deg, var(--accent), #a78bfa); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: white; letter-spacing: -1px; }
+    .sidebar-logo h1 { font-size: 17px; font-weight: 700; background: linear-gradient(135deg, var(--accent2), #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .sidebar-logo small { font-size: 10px; color: var(--text3); display: block; letter-spacing: 0.5px; }
+    .sidebar-nav { flex: 1; padding: 12px 10px; overflow-y: auto; }
+    .nav-section { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text3); padding: 18px 12px 6px; font-weight: 700; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; color: var(--text2); transition: all 0.15s; margin-bottom: 1px; }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active { background: var(--accent-glow); color: var(--accent2); font-weight: 600; border-left: 3px solid var(--accent); }
+    .nav-item .icon { font-size: 17px; width: 24px; text-align: center; }
+    .nav-badge { margin-left: auto; font-size: 10px; background: var(--accent); color: white; padding: 2px 7px; border-radius: 10px; font-weight: 600; }
+    .sidebar-footer { padding: 14px 20px; border-top: 1px solid var(--border); font-size: 10px; color: var(--text3); display: flex; align-items: center; gap: 6px; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+    /* ─── MAIN ────────────────── */
+    .main { margin-left: 260px; min-height: 100vh; }
+    .topbar { position: sticky; top: 0; z-index: 50; background: rgba(6,9,16,0.88); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .topbar h2 { font-size: 18px; font-weight: 600; }
+    .topbar-count { font-size: 11px; color: var(--text3); background: var(--surface2); padding: 3px 10px; border-radius: 20px; }
+    .topbar-actions { display: flex; gap: 8px; align-items: center; }
+    .content { padding: 24px 28px; }
+
+    /* ─── BUTTONS ──────────────── */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius-xs); font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); transition: all 0.15s; font-family: inherit; }
+    .btn:hover { background: var(--surface3); border-color: var(--border-hover); }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent2); }
+    .btn-sm { padding: 5px 10px; font-size: 11px; }
+    .btn-danger { border-color: rgba(239,68,68,0.3); color: var(--red); background: var(--red-bg); }
+    .btn-danger:hover { background: rgba(239,68,68,0.15); border-color: var(--red); }
+    .btn-ghost { background: transparent; border-color: transparent; }
+    .btn-ghost:hover { background: var(--surface2); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ─── STAT CARDS ───────────── */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 22px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; position: relative; overflow: hidden; transition: all 0.2s; }
+    .stat-card:hover { border-color: var(--border2); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .stat-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); opacity: 0; transition: opacity 0.2s; }
+    .stat-card:hover::after { opacity: 1; }
+    .stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; font-weight: 600; }
+    .stat-value { font-size: 24px; font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums; }
+    .stat-value.money { color: var(--green); }
+    .stat-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+    .stat-icon { position: absolute; top: 14px; right: 14px; font-size: 24px; opacity: 0.12; }
+
+    /* ─── TABLE ────────────────── */
+    .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .table-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .table-header h3 { font-size: 14px; font-weight: 600; }
+    .search-input { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 7px 12px 7px 34px; color: var(--text); font-size: 12px; width: 260px; outline: none; transition: border-color 0.15s; font-family: inherit; }
+    .search-input:focus { border-color: var(--accent); }
+    .search-wrap { position: relative; }
+    .search-wrap::before { content: '🔍'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 13px; }
+    .filter-select { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 7px 10px; color: var(--text); font-size: 12px; outline: none; font-family: inherit; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 10px 14px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text3); font-weight: 700; border-bottom: 1px solid var(--border); background: var(--surface2); }
+    td { padding: 10px 14px; font-size: 12px; border-bottom: 1px solid var(--border); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    tr:hover td { background: rgba(99,102,241,0.02); }
+    tr.selected td { background: var(--accent-glow); }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+    .badge-green { background: var(--green-bg); color: var(--green); }
+    .badge-blue { background: var(--blue-bg); color: var(--blue); }
+    .badge-yellow { background: var(--yellow-bg); color: var(--yellow); }
+    .badge-red { background: var(--red-bg); color: var(--red); }
+    .badge-cyan { background: var(--cyan-bg); color: var(--cyan); }
+    .td-money { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--green); }
+    .td-link { color: var(--accent2); cursor: pointer; text-decoration: none; font-size: 11px; }
+    .td-link:hover { text-decoration: underline; }
+    .cb { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+
+    /* ─── PAGINATION ───────────── */
+    .pagination { display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text3); }
+    .pagination-btns { display: flex; gap: 3px; }
+    .page-btn { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-xs); border: 1px solid var(--border); background: transparent; color: var(--text2); cursor: pointer; font-size: 12px; font-family: inherit; }
+    .page-btn:hover { background: var(--surface2); }
+    .page-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+    /* ─── MODAL ─────────────────── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); z-index: 200; display: none; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; width: 95%; max-width: 820px; max-height: 90vh; overflow-y: auto; animation: modalIn 0.25s ease; }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(8px); } }
+    .modal-head { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--surface); z-index: 1; }
+    .modal-head h3 { font-size: 15px; font-weight: 600; }
+    .modal-close { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text2); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+    .modal-close:hover { background: var(--red-bg); color: var(--red); }
+    .modal-body { padding: 22px; }
+    .modal-footer { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .detail-section { margin-bottom: 18px; }
+    .detail-section h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent2); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid var(--border); font-weight: 700; }
+    .detail-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 12px; }
+    .detail-row .label { color: var(--text3); }
+    .detail-row .value { font-weight: 500; text-align: right; max-width: 60%; word-break: break-all; }
+    .prod-table { width: 100%; font-size: 11px; }
+    .prod-table th { font-size: 9px; padding: 6px; background: var(--bg); }
+    .prod-table td { padding: 5px 6px; }
+
+    /* ─── CONFIRM MODAL ────────── */
+    .confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 300; display: none; align-items: center; justify-content: center; }
+    .confirm-overlay.open { display: flex; }
+    .confirm-box { background: var(--surface); border: 1px solid var(--border2); border-radius: 14px; padding: 28px; max-width: 420px; width: 90%; text-align: center; animation: modalIn 0.2s ease; }
+    .confirm-box .confirm-icon { font-size: 40px; margin-bottom: 14px; }
+    .confirm-box h3 { font-size: 16px; margin-bottom: 8px; }
+    .confirm-box p { font-size: 13px; color: var(--text2); margin-bottom: 20px; line-height: 1.5; }
+    .confirm-btns { display: flex; gap: 8px; justify-content: center; }
+
+    /* ─── TOAST ─────────────────── */
+    .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 400; display: flex; flex-direction: column; gap: 8px; }
+    .toast { padding: 12px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; animation: toastIn 0.3s ease, toastOut 0.3s ease 3.7s forwards; min-width: 280px; box-shadow: var(--shadow); }
+    .toast-success { background: #065f46; color: #a7f3d0; border: 1px solid #10b981; }
+    .toast-error { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
+    .toast-warning { background: #78350f; color: #fde68a; border: 1px solid #f59e0b; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } }
+    @keyframes toastOut { to { opacity: 0; transform: translateX(40px); } }
+
+    /* ─── BULK ACTION BAR ──────── */
+    .bulk-bar { position: fixed; bottom: 24px; left: 50%; transform: translateX(calc(-50% + 130px)); background: var(--surface); border: 1px solid var(--accent); border-radius: var(--radius); padding: 10px 20px; display: none; align-items: center; gap: 14px; z-index: 150; box-shadow: 0 8px 40px rgba(99,102,241,0.25); animation: barIn 0.3s ease; }
+    .bulk-bar.open { display: flex; }
+    @keyframes barIn { from { opacity: 0; transform: translateX(calc(-50% + 130px)) translateY(20px); } }
+    .bulk-count { font-size: 13px; font-weight: 600; color: var(--accent2); }
+
+    /* ─── CHARTS ────────────────── */
+    .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 22px; }
+    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+    .chart-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+    .bar-chart { display: flex; flex-direction: column; gap: 6px; }
+    .bar-row { display: flex; align-items: center; gap: 8px; }
+    .bar-label { font-size: 11px; color: var(--text2); width: 70px; text-align: right; flex-shrink: 0; }
+    .bar-track { flex: 1; height: 22px; background: var(--bg); border-radius: 5px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.6s ease; display: flex; align-items: center; padding-left: 8px; font-size: 10px; font-weight: 700; color: white; min-width: 32px; }
+    .bar-value { font-size: 11px; color: var(--text2); width: 95px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .mini-list { display: flex; flex-direction: column; gap: 5px; }
+    .mini-item { display: flex; align-items: center; justify-content: space-between; padding: 9px 11px; background: var(--bg); border-radius: var(--radius-xs); font-size: 12px; }
+    .mini-item .name { font-weight: 500; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .mini-item .val { font-weight: 600; color: var(--green); font-variant-numeric: tabular-nums; }
+
+    /* ─── MONTH CARDS ──────────── */
+    .month-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-bottom: 22px; }
+    .month-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; cursor: pointer; transition: all 0.2s; position: relative; }
+    .month-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+    .month-card.active { border-color: var(--accent); background: var(--accent-glow); }
+    .month-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+    .month-card .month-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .month-stat-item { font-size: 11px; }
+    .month-stat-item .msl { color: var(--text3); font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .month-stat-item .msv { font-weight: 600; font-size: 13px; }
+
+    /* ─── WEBHOOK ───────────────── */
+    .webhook-info { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 18px; }
+    .webhook-url { background: var(--bg); border: 1px solid var(--border2); border-radius: var(--radius-xs); padding: 10px 14px; font-family: 'Courier New', monospace; font-size: 13px; color: var(--accent2); display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+    .webhook-url code { flex: 1; word-break: break-all; }
+
+    /* ─── EMPTY ─────────────────── */
+    .empty-state { text-align: center; padding: 50px 20px; color: var(--text3); }
+    .empty-state .icon { font-size: 42px; margin-bottom: 12px; opacity: 0.4; }
+    .empty-state h3 { font-size: 15px; color: var(--text2); margin-bottom: 6px; }
+
+    /* ─── RESPONSIVE ───────────── */
+    .mobile-toggle { display: none; }
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; } .mobile-toggle { display: block; }
+      .stats-grid { grid-template-columns: 1fr 1fr; } .charts-grid { grid-template-columns: 1fr; }
+      .detail-grid { grid-template-columns: 1fr; } .content { padding: 14px; } .topbar { padding: 10px 14px; }
+      .bulk-bar { transform: translateX(-50%); left: 50%; }
+    }
+    @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } .search-input { width: 100%; } .table-header { flex-direction: column; align-items: stretch; } .month-grid { grid-template-columns: 1fr; } }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; } ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+  </style>
+</head>
+<body>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">FF</div>
+    <div><h1>FiscalFlow</h1><small>Enterprise Edition</small></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')"><span class="icon">📊</span> Dashboard</div>
+    <div class="nav-item" data-page="notas" onclick="showPage('notas')"><span class="icon">🧾</span> Notas Fiscais <span class="nav-badge" id="nav-total">0</span></div>
+    <div class="nav-item" data-page="mensal" onclick="showPage('mensal')"><span class="icon">📅</span> Filtro Mensal</div>
+    <div class="nav-section">Gestao</div>
+    <div class="nav-item" data-page="fornecedores" onclick="showPage('fornecedores')"><span class="icon">🏢</span> Fornecedores</div>
+    <div class="nav-item" data-page="webhook" onclick="showPage('webhook')"><span class="icon">🔗</span> Configuracao</div>
+  </div>
+  <div class="sidebar-footer"><span class="status-dot"></span> Conectado ao n8n</div>
+</nav>
+
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="btn btn-sm mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <h2 id="page-title">Dashboard</h2>
+      <span class="topbar-count" id="topbar-count"></span>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-sm" onclick="refreshAll()">🔄 Atualizar</button>
+      <a href="/api/export/csv" class="btn btn-sm" style="text-decoration:none">📥 CSV</a>
+    </div>
+  </header>
+
+  <div class="content">
+    <!-- DASHBOARD -->
+    <div id="page-dashboard">
+      <div class="stats-grid" id="stats-cards"></div>
+      <div class="charts-grid" id="charts-area"></div>
+      <div class="table-card">
+        <div class="table-header"><h3>Notas Recentes</h3></div>
+        <div style="overflow-x:auto"><table><thead><tr><th>Fornecedor</th><th>CNPJ</th><th>Nr</th><th>Valor</th><th>Data</th><th>Tipo</th></tr></thead><tbody id="recent-tbody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- NOTAS -->
+    <div id="page-notas" style="display:none">
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Todas as Notas Fiscais</h3>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <div class="search-wrap"><input class="search-input" id="search-input" placeholder="Buscar fornecedor, CNPJ, numero..." oninput="debounceSearch()"></div>
+            <select id="filter-tipo" class="filter-select" onchange="loadNotas()"><option value="">Todos os tipos</option><option value="Entrada">Entrada</option><option value="Saida">Saida</option></select>
+          </div>
+        </div>
+        <div style="overflow-x:auto"><table><thead><tr>
+          <th style="width:30px"><input type="checkbox" class="cb" id="select-all" onchange="toggleSelectAll()"></th>
+          <th>Fornecedor</th><th>CNPJ</th><th>Nr</th><th>Valor</th><th>ICMS</th><th>Data</th><th>Tipo</th><th>Fonte</th><th></th>
+        </tr></thead><tbody id="notas-tbody"></tbody></table></div>
+        <div class="pagination" id="pagination-area"></div>
+      </div>
+    </div>
+
+    <!-- MENSAL -->
+    <div id="page-mensal" style="display:none">
+      <div class="month-grid" id="month-grid"></div>
+      <div id="month-detail" style="display:none">
+        <div class="stats-grid" id="month-stats"></div>
+        <div class="table-card">
+          <div class="table-header">
+            <h3 id="month-table-title">Notas do Mes</h3>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn btn-sm" onclick="selectedMonth=null;loadMensal()">← Voltar</button>
+              <a id="month-csv-link" class="btn btn-sm" style="text-decoration:none">📥 CSV do Mes</a>
+            </div>
+          </div>
+          <div style="overflow-x:auto"><table><thead><tr><th>Fornecedor</th><th>CNPJ</th><th>Nr</th><th>Valor</th><th>ICMS</th><th>Tipo</th><th></th></tr></thead><tbody id="month-tbody"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORNECEDORES -->
+    <div id="page-fornecedores" style="display:none">
+      <div class="table-card">
+        <div class="table-header"><h3>Fornecedores (Top por valor)</h3></div>
+        <div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Fornecedor</th><th>CNPJ</th><th>Qt. Notas</th><th>Valor Total</th></tr></thead><tbody id="forn-tbody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- WEBHOOK/CONFIG -->
+    <div id="page-webhook" style="display:none">
+      <div class="webhook-info">
+        <h3 style="margin-bottom:8px">Endpoint do Webhook</h3>
+        <p style="font-size:12px;color:var(--text2)">Configure no no HTTP Request do n8n:</p>
+        <div class="webhook-url"><code id="webhook-url-display"></code><button class="btn btn-sm btn-primary" onclick="copyWebhook()">Copiar</button></div>
+      </div>
+      <div class="webhook-info">
+        <h3 style="margin-bottom:10px">Configuracao do n8n</h3>
+        <p style="font-size:12px;color:var(--text2);line-height:1.7">
+          1. Adicione um no <strong>HTTP Request</strong> apos "Consolidar &amp; Formatar Saida"<br>
+          2. Metodo: <strong>POST</strong> | URL: <code style="color:var(--accent2);background:var(--bg);padding:1px 5px;border-radius:3px">SEU_IP:3000/webhook/nfe</code><br>
+          3. Body JSON: <code style="color:var(--accent2)">{{ $json.webhookPayload }}</code>
+        </p>
+      </div>
+      <div class="webhook-info">
+        <h3 style="margin-bottom:10px">Testar Webhook</h3>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="sendTestWebhook()">Enviar NFe de Teste</button>
+          <span id="test-result" style="font-size:12px"></span>
+        </div>
+      </div>
+      <div class="webhook-info" style="border-color:rgba(239,68,68,0.2)">
+        <h3 style="margin-bottom:10px;color:var(--red)">Zona de Perigo</h3>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:12px">Acoes irreversiveis. Um backup sera criado automaticamente.</p>
+        <button class="btn btn-danger" onclick="confirmPurge()">Limpar Todas as Notas</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head"><h3 id="modal-title">Detalhes da NFe</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="confirm-overlay" id="confirm-overlay" onclick="if(event.target===this)closeConfirm()">
+  <div class="confirm-box" id="confirm-box"></div>
+</div>
+
+<!-- BULK BAR -->
+<div class="bulk-bar" id="bulk-bar">
+  <span class="bulk-count" id="bulk-count">0 selecionadas</span>
+  <button class="btn btn-danger btn-sm" onclick="bulkDelete()">Excluir Selecionadas</button>
+  <button class="btn btn-ghost btn-sm" onclick="clearSelection()">Cancelar</button>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ─── STATE ──────────────────────────────
+let currentPage = 'dashboard';
+let notasPage = 1;
+let searchTimeout = null;
+let selectedIds = new Set();
+let selectedMonth = null;
+let dashboardData = null;
+
+// ─── SECURITY: HTML Escape ──────────────
+const esc = s => { if (s === null || s === undefined) return ''; const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; };
+
+// ─── FORMAT HELPERS ─────────────────────
+const fmt = v => (v === null || v === undefined) ? 'R$ 0,00' : parseFloat(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const fmtNum = v => parseInt(v || 0).toLocaleString('pt-BR');
+const fmtDate = d => { if (!d) return '—'; const m = String(d).match(/(\d{4})-(\d{2})-(\d{2})T?(\d{2})?:?(\d{2})?/); return m ? `${m[3]}/${m[2]}/${m[1]}${m[4] ? ' '+m[4]+':'+m[5] : ''}` : d; };
+const fmtCnpj = c => { if (!c || c === '—') return '—'; const d = c.replace(/\D/g, ''); if (d.length === 14) return d.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5'); if (d.length === 11) return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4'); return c; };
+const fmtMes = m => { const [y,mo] = m.split('-'); const nomes = ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']; return `${nomes[parseInt(mo)] || mo}/${y}`; };
+
+// ─── TOAST ──────────────────────────────
+function toast(msg, type = 'success') {
+  const el = document.createElement('div');
+  el.className = 'toast toast-' + type;
+  el.textContent = (type === 'success' ? '✓ ' : type === 'error' ? '✗ ' : '⚠ ') + msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 4200);
+}
+
+// ─── CONFIRM DIALOG ─────────────────────
+let confirmResolve = null;
+function showConfirm(icon, title, msg, confirmText = 'Confirmar', danger = false) {
+  return new Promise(resolve => {
+    confirmResolve = resolve;
+    document.getElementById('confirm-box').innerHTML = `
+      <div class="confirm-icon">${icon}</div>
+      <h3>${esc(title)}</h3>
+      <p>${msg}</p>
+      <div class="confirm-btns">
+        <button class="btn" onclick="closeConfirm(false)">Cancelar</button>
+        <button class="btn ${danger ? 'btn-danger' : 'btn-primary'}" onclick="closeConfirm(true)">${esc(confirmText)}</button>
+      </div>`;
+    document.getElementById('confirm-overlay').classList.add('open');
+  });
+}
+function closeConfirm(result) {
+  document.getElementById('confirm-overlay').classList.remove('open');
+  if (confirmResolve) { confirmResolve(result); confirmResolve = null; }
+}
+
+// ─── NAVIGATION ─────────────────────────
+function showPage(page) {
+  currentPage = page;
+  ['dashboard','notas','mensal','fornecedores','webhook'].forEach(p => document.getElementById('page-' + p).style.display = 'none');
+  document.getElementById('page-' + page).style.display = 'block';
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.page === page));
+  const titles = { dashboard: 'Dashboard', notas: 'Notas Fiscais', mensal: 'Filtro Mensal', fornecedores: 'Fornecedores', webhook: 'Configuracao' };
+  document.getElementById('page-title').textContent = titles[page] || page;
+  document.getElementById('sidebar').classList.remove('open');
+  if (page === 'dashboard') loadDashboard();
+  if (page === 'notas') { clearSelection(); loadNotas(); }
+  if (page === 'mensal') { selectedMonth = null; loadMensal(); }
+  if (page === 'fornecedores') loadDashboard();
+  if (page === 'webhook') document.getElementById('webhook-url-display').textContent = `${location.origin}/webhook/nfe`;
+}
+
+function refreshAll() { loadDashboard(); loadNotas(); toast('Dados atualizados'); }
+
+// ─── DASHBOARD ──────────────────────────
+async function loadDashboard() {
+  try {
+    const r = await fetch('/api/dashboard'); dashboardData = await r.json();
+    renderDashboard(dashboardData);
+    document.getElementById('nav-total').textContent = dashboardData.totalNotas;
+    document.getElementById('topbar-count').textContent = dashboardData.totalNotas + ' notas';
+  } catch(e) { console.error(e); }
+}
+function renderDashboard(d) {
+  document.getElementById('stats-cards').innerHTML = `
+    <div class="stat-card"><div class="stat-icon">🧾</div><div class="stat-label">Total de Notas</div><div class="stat-value">${fmtNum(d.totalNotas)}</div><div class="stat-sub">${d.hoje} hoje · ${d.ultimos7dias} ultimos 7d</div></div>
+    <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Valor Total</div><div class="stat-value money">${fmt(d.valorTotal)}</div><div class="stat-sub">Soma geral</div></div>
+    <div class="stat-card"><div class="stat-icon">🏛️</div><div class="stat-label">ICMS Total</div><div class="stat-value" style="color:var(--yellow)">${fmt(d.valorICMS)}</div><div class="stat-sub">Imposto acumulado</div></div>
+    <div class="stat-card"><div class="stat-icon">🏢</div><div class="stat-label">Fornecedores</div><div class="stat-value">${fmtNum(d.totalFornecedores)}</div><div class="stat-sub">CNPJs distintos</div></div>
+    <div class="stat-card"><div class="stat-icon">🚚</div><div class="stat-label">Frete Total</div><div class="stat-value" style="color:var(--cyan)">${fmt(d.valorFrete)}</div><div class="stat-sub">Soma de fretes</div></div>
+    <div class="stat-card"><div class="stat-icon">🏷️</div><div class="stat-label">Descontos</div><div class="stat-value" style="color:var(--red2)">${fmt(d.valorDesconto)}</div><div class="stat-sub">Soma de descontos</div></div>
+  `;
+  if (d.dbSizeWarning) toast('Banco com mais de 10.000 notas. Considere limpar dados antigos.', 'warning');
+  const maxM = Math.max(...(d.mensal||[]).map(m => m.valor), 1);
+  const barsH = (d.mensal||[]).map(m => { const pct = Math.max((m.valor/maxM)*100, 5); return `<div class="bar-row"><div class="bar-label">${fmtMes(m.mes)}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%">${m.total}</div></div><div class="bar-value">${fmt(m.valor)}</div></div>`; }).join('');
+  const topH = (d.topFornecedores||[]).map(f => `<div class="mini-item"><div><div class="name">${esc(f.fornecedor)}</div><div style="font-size:10px;color:var(--text3)">${f.total} notas</div></div><div class="val">${fmt(f.valor)}</div></div>`).join('') || '<div class="mini-item"><div class="name" style="color:var(--text3)">Nenhum</div></div>';
+  document.getElementById('charts-area').innerHTML = `<div class="chart-card"><h3>Evolucao Mensal</h3><div class="bar-chart">${barsH || '<div style="color:var(--text3);font-size:12px;padding:16px">Sem dados</div>'}</div></div><div class="chart-card"><h3>Top Fornecedores</h3><div class="mini-list">${topH}</div></div>`;
+  document.getElementById('recent-tbody').innerHTML = (d.recentes||[]).map(n => `<tr style="cursor:pointer" onclick="openDetail(${n.id})"><td><strong>${esc(n.fornecedor)}</strong></td><td style="font-size:11px;color:var(--text3)">${fmtCnpj(n.cnpj)}</td><td>${esc(n.numero)||'—'}</td><td class="td-money">${fmt(n.valor_total)}</td><td>${fmtDate(n.data_emissao)||'—'}</td><td>${n.tipo_operacao?`<span class="badge ${n.tipo_operacao==='Entrada'?'badge-blue':'badge-green'}">${esc(n.tipo_operacao)}</span>`:'—'}</td></tr>`).join('') || '<tr><td colspan="6"><div class="empty-state"><div class="icon">📭</div><h3>Nenhuma nota</h3></div></td></tr>';
+  document.getElementById('forn-tbody').innerHTML = (d.topFornecedores||[]).map((f,i) => `<tr><td style="color:var(--text3)">${i+1}</td><td><strong>${esc(f.fornecedor)}</strong></td><td>${fmtCnpj(f.cnpj)}</td><td>${f.total}</td><td class="td-money">${fmt(f.valor)}</td></tr>`).join('') || '<tr><td colspan="5"><div class="empty-state">Nenhum</div></td></tr>';
+}
+
+// ─── NOTAS ──────────────────────────────
+async function loadNotas() {
+  try {
+    const s = document.getElementById('search-input')?.value || '';
+    const t = document.getElementById('filter-tipo')?.value || '';
+    const params = new URLSearchParams({ page: notasPage, limit: 30, search: s, tipo: t });
+    const r = await fetch('/api/notas?' + params); const d = await r.json();
+    renderNotas(d);
+  } catch(e) { console.error(e); }
+}
+function renderNotas(d) {
+  document.getElementById('notas-tbody').innerHTML = (d.notas||[]).map(n => `
+    <tr class="${selectedIds.has(n.id)?'selected':''}" style="cursor:pointer">
+      <td onclick="event.stopPropagation()"><input type="checkbox" class="cb" ${selectedIds.has(n.id)?'checked':''} onchange="toggleSelect(${n.id}, this.checked)"></td>
+      <td onclick="openDetail(${n.id})"><strong>${esc(n.fornecedor)}</strong></td>
+      <td onclick="openDetail(${n.id})" style="font-size:11px;color:var(--text3)">${fmtCnpj(n.cnpj)}</td>
+      <td onclick="openDetail(${n.id})">${esc(n.numero)||'—'}</td>
+      <td onclick="openDetail(${n.id})" class="td-money">${fmt(n.valor_total)}</td>
+      <td onclick="openDetail(${n.id})" style="color:var(--yellow)">${fmt(n.valor_icms)}</td>
+      <td onclick="openDetail(${n.id})">${fmtDate(n.data_emissao)||'—'}</td>
+      <td onclick="openDetail(${n.id})">${n.tipo_operacao?`<span class="badge ${n.tipo_operacao==='Entrada'?'badge-blue':'badge-green'}">${esc(n.tipo_operacao)}</span>`:'—'}</td>
+      <td onclick="openDetail(${n.id})"><span class="badge ${n.source?.includes('xml')?'badge-green':'badge-yellow'}">${esc(n.source)||'?'}</span></td>
+      <td>${n.link_sefaz?`<a href="${esc(n.link_sefaz)}" target="_blank" class="td-link" onclick="event.stopPropagation()">SEFAZ</a>`:''}</td>
+    </tr>`).join('') || '<tr><td colspan="10"><div class="empty-state"><div class="icon">📭</div><h3>Nenhuma nota</h3></div></td></tr>';
+  let ph = `<span>${d.notas?.length||0} de ${d.total}</span><div class="pagination-btns">`;
+  for (let i=1;i<=d.pages;i++){if(d.pages>7&&i>3&&i<d.pages-2&&i!==d.page){if(i===4)ph+='<span style="color:var(--text3);padding:0 4px">...</span>';continue;}ph+=`<button class="page-btn ${i===d.page?'active':''}" onclick="notasPage=${i};loadNotas()">${i}</button>`;}
+  ph+='</div>'; document.getElementById('pagination-area').innerHTML = ph;
+}
+function debounceSearch() { clearTimeout(searchTimeout); searchTimeout = setTimeout(() => { notasPage = 1; loadNotas(); }, 350); }
+
+// ─── SELECTION ──────────────────────────
+function toggleSelect(id, checked) { checked ? selectedIds.add(id) : selectedIds.delete(id); updateBulkBar(); }
+function toggleSelectAll() { const cb = document.getElementById('select-all'); document.querySelectorAll('#notas-tbody .cb').forEach(c => { const id = parseInt(c.closest('tr').querySelector('td:nth-child(5)')?.textContent?.replace(/\D/g,''))||0; c.checked = cb.checked; /* re-read from row */ }); if (!cb.checked) { selectedIds.clear(); } updateBulkBar(); loadNotas(); }
+function clearSelection() { selectedIds.clear(); const sa = document.getElementById('select-all'); if (sa) sa.checked = false; updateBulkBar(); loadNotas(); }
+function updateBulkBar() { const bar = document.getElementById('bulk-bar'); const n = selectedIds.size; bar.classList.toggle('open', n > 0); document.getElementById('bulk-count').textContent = n + ' selecionada' + (n > 1 ? 's' : ''); }
+async function bulkDelete() {
+  const n = selectedIds.size; if (n === 0) return;
+  const ok = await showConfirm('🗑️', `Excluir ${n} nota${n>1?'s':''}?`, `Esta acao removera ${n} nota${n>1?'s':''} permanentemente.<br>Um backup sera criado automaticamente.`, 'Excluir', true);
+  if (!ok) return;
+  try {
+    const r = await fetch('/api/notas/bulk-delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: [...selectedIds] }) });
+    const d = await r.json(); toast(`${d.deleted} nota${d.deleted>1?'s':''} excluida${d.deleted>1?'s':''}`);
+    selectedIds.clear(); updateBulkBar(); loadNotas(); loadDashboard();
+  } catch(e) { toast('Erro ao excluir: ' + e.message, 'error'); }
+}
+
+// ─── DETAIL MODAL ───────────────────────
+async function openDetail(id) {
+  try {
+    const r = await fetch('/api/notas/' + id); const n = await r.json(); renderDetail(n);
+    document.getElementById('modal-overlay').classList.add('open');
+  } catch(e) { console.error(e); }
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+function renderDetail(n) {
+  document.getElementById('modal-title').textContent = `NFe #${n.numero||n.id} — ${n.fornecedor}`;
+  const prods = Array.isArray(n.produtos) ? n.produtos : [];
+  let prodsH = '';
+  if (prods.length > 0) {
+    prodsH = `<div class="detail-section"><h4>Produtos (${prods.length})</h4><div style="overflow-x:auto"><table class="prod-table"><thead><tr><th>#</th><th>Descricao</th><th>Qtd</th><th>Un</th><th>V.Unit</th><th>V.Total</th><th>NCM</th><th>CFOP</th></tr></thead><tbody>${prods.map((p,i)=>`<tr><td>${i+1}</td><td>${esc(p.descricao)||'—'}</td><td>${p.qtd||0}</td><td>${esc(p.un)||'—'}</td><td>${fmt(p.vUnit)}</td><td class="td-money">${fmt(p.vTotal)}</td><td>${esc(p.ncm)||'—'}</td><td>${esc(p.cfop)||'—'}</td></tr>`).join('')}</tbody></table></div></div>`;
+  }
+  document.getElementById('modal-body').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-section"><h4>Identificacao</h4>
+        <div class="detail-row"><span class="label">Numero</span><span class="value">${esc(n.numero)||'—'}</span></div>
+        <div class="detail-row"><span class="label">Serie</span><span class="value">${esc(n.serie)||'—'}</span></div>
+        <div class="detail-row"><span class="label">Chave Acesso</span><span class="value" style="font-size:10px">${esc(n.chave_acesso)||'—'}</span></div>
+        <div class="detail-row"><span class="label">Data Emissao</span><span class="value">${fmtDate(n.data_emissao)}</span></div>
+        <div class="detail-row"><span class="label">Natureza Op.</span><span class="value">${esc(n.natureza_operacao)||'—'}</span></div>
+        <div class="detail-row"><span class="label">Tipo</span><span class="value">${esc(n.tipo_operacao)||'—'}</span></div>
+        <div class="detail-row"><span class="label">Protocolo</span><span class="value">${esc(n.protocolo)||'—'}</span></div>
+      </div>
+      <div class="detail-section"><h4>Emitente</h4>
+        <div class="detail-row"><span class="label">Razao Social</span><span class="value">${esc(n.fornecedor)}</span></div>
+        <div class="detail-row"><span class="label">CNPJ</span><span class="value">${fmtCnpj(n.cnpj)}</span></div>
+      </div>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-section"><h4>Destinatario</h4>
+        <div class="detail-row"><span class="label">Razao Social</span><span class="value">${esc(n.destinatario)||'—'}</span></div>
+        <div class="detail-row"><span class="label">CNPJ/CPF</span><span class="value">${fmtCnpj(n.destinatario_cnpj)}</span></div>
+      </div>
+      <div class="detail-section"><h4>Valores</h4>
+        <div class="detail-row"><span class="label">Produtos</span><span class="value">${fmt(n.valor_produtos)}</span></div>
+        <div class="detail-row"><span class="label">ICMS</span><span class="value" style="color:var(--yellow)">${fmt(n.valor_icms)}</span></div>
+        <div class="detail-row"><span class="label">Frete</span><span class="value">${fmt(n.valor_frete)}</span></div>
+        <div class="detail-row"><span class="label">Desconto</span><span class="value">${fmt(n.valor_desconto)}</span></div>
+        <div class="detail-row"><span class="label"><strong>Total</strong></span><span class="value td-money" style="font-size:16px">${fmt(n.valor_total)}</span></div>
+      </div>
+    </div>
+    ${prodsH}
+    <div class="detail-section"><h4>Email / Origem</h4>
+      <div class="detail-row"><span class="label">Remetente</span><span class="value">${esc(n.email_remetente)||'—'}</span></div>
+      <div class="detail-row"><span class="label">Assunto</span><span class="value">${esc(n.assunto_email)||'—'}</span></div>
+      <div class="detail-row"><span class="label">Recebido</span><span class="value">${esc(n.data_recebimento||n.created_at)||'—'}</span></div>
+      <div class="detail-row"><span class="label">Fonte</span><span class="value">${esc(n.source)||'—'} ${n.tem_xml?'✓XML':''} ${n.tem_pdf?'✓PDF':''}</span></div>
+    </div>
+    ${n.info_complementares?`<div class="detail-section"><h4>Info Complementares</h4><p style="font-size:12px;color:var(--text2);line-height:1.5">${esc(n.info_complementares)}</p></div>`:''}
+  `;
+  document.getElementById('modal-footer').innerHTML = `
+    ${n.link_sefaz?`<a href="${esc(n.link_sefaz)}" target="_blank" class="btn btn-sm">🔍 SEFAZ</a>`:''}
+    <button class="btn btn-danger btn-sm" onclick="deleteNota(${n.id}, '${esc(n.fornecedor).replace(/'/g,"\\'")}', '${esc(n.numero)}')">🗑️ Excluir</button>
+  `;
+}
+async function deleteNota(id, forn, num) {
+  const ok = await showConfirm('🗑️', 'Excluir esta nota?', `<strong>${forn}</strong> — Nr ${num}<br>Esta acao e permanente.`, 'Excluir', true);
+  if (!ok) return;
+  try {
+    const r = await fetch('/api/notas/' + id, { method: 'DELETE' }); const d = await r.json();
+    if (d.deleted) { toast('Nota excluida'); closeModal(); loadNotas(); loadDashboard(); }
+    else toast('Nota nao encontrada', 'error');
+  } catch(e) { toast('Erro: ' + e.message, 'error'); }
+}
+
+// ─── MENSAL ─────────────────────────────
+async function loadMensal() {
+  if (selectedMonth) { loadMonthDetail(selectedMonth); return; }
+  document.getElementById('month-detail').style.display = 'none';
+  try {
+    const r = await fetch('/api/notas/meses'); const d = await r.json();
+    document.getElementById('month-grid').style.display = 'grid';
+    document.getElementById('month-grid').innerHTML = (d.meses||[]).map(m => `
+      <div class="month-card" onclick="selectedMonth='${m.mes}';loadMensal()">
+        <h3>${fmtMes(m.mes)}</h3>
+        <div class="month-stats">
+          <div class="month-stat-item"><div class="msl">Notas</div><div class="msv">${m.total}</div></div>
+          <div class="month-stat-item"><div class="msl">Fornecedores</div><div class="msv">${m.fornecedores}</div></div>
+          <div class="month-stat-item"><div class="msl">Valor Total</div><div class="msv" style="color:var(--green)">${fmt(m.valor)}</div></div>
+          <div class="month-stat-item"><div class="msl">ICMS</div><div class="msv" style="color:var(--yellow)">${fmt(m.icms)}</div></div>
+        </div>
+      </div>
+    `).join('') || '<div class="empty-state"><div class="icon">📅</div><h3>Nenhum mes com notas</h3></div>';
+  } catch(e) { console.error(e); }
+}
+async function loadMonthDetail(mes) {
+  document.getElementById('month-grid').style.display = 'none';
+  document.getElementById('month-detail').style.display = 'block';
+  document.getElementById('month-table-title').textContent = 'Notas — ' + fmtMes(mes);
+  document.getElementById('month-csv-link').href = '/api/export/csv?mes=' + mes;
+  try {
+    const r = await fetch('/api/notas?mes=' + mes + '&limit=500'); const d = await r.json();
+    document.getElementById('month-stats').innerHTML = `
+      <div class="stat-card"><div class="stat-label">Notas do Mes</div><div class="stat-value">${d.total}</div></div>
+      <div class="stat-card"><div class="stat-label">Valor Total</div><div class="stat-value money">${fmt(d.summary?.totalValor)}</div></div>
+      <div class="stat-card"><div class="stat-label">ICMS</div><div class="stat-value" style="color:var(--yellow)">${fmt(d.summary?.totalICMS)}</div></div>
+      <div class="stat-card"><div class="stat-label">Fornecedores</div><div class="stat-value">${d.summary?.fornecedores||0}</div></div>
+    `;
+    document.getElementById('month-tbody').innerHTML = (d.notas||[]).map(n => `
+      <tr style="cursor:pointer" onclick="openDetail(${n.id})">
+        <td><strong>${esc(n.fornecedor)}</strong></td><td style="font-size:11px;color:var(--text3)">${fmtCnpj(n.cnpj)}</td>
+        <td>${esc(n.numero)||'—'}</td><td class="td-money">${fmt(n.valor_total)}</td>
+        <td style="color:var(--yellow)">${fmt(n.valor_icms)}</td>
+        <td>${n.tipo_operacao?`<span class="badge ${n.tipo_operacao==='Entrada'?'badge-blue':'badge-green'}">${esc(n.tipo_operacao)}</span>`:'—'}</td>
+        <td>${n.link_sefaz?`<a href="${esc(n.link_sefaz)}" target="_blank" class="td-link" onclick="event.stopPropagation()">SEFAZ</a>`:''}</td>
+      </tr>`).join('') || '<tr><td colspan="7"><div class="empty-state">Nenhuma nota neste mes</div></td></tr>';
+  } catch(e) { console.error(e); }
+}
+
+// ─── PURGE ALL ──────────────────────────
+async function confirmPurge() {
+  const ok1 = await showConfirm('⚠️', 'Limpar TODAS as notas?', 'Isso removera permanentemente todas as notas do sistema.<br>Um backup sera salvo automaticamente em <code>data.backup.json</code>.', 'Sim, limpar tudo', true);
+  if (!ok1) return;
+  const ok2 = await showConfirm('🔴', 'Tem certeza absoluta?', 'Esta e a ultima confirmacao. Todas as <strong>' + (dashboardData?.totalNotas||0) + ' notas</strong> serao apagadas.', 'CONFIRMAR EXCLUSAO', true);
+  if (!ok2) return;
+  try {
+    const r = await fetch('/api/notas/purge-all', { method: 'DELETE', headers: { 'X-Confirm': 'PURGE' } });
+    const d = await r.json(); toast(`${d.purged} notas removidas. Backup salvo.`);
+    loadDashboard(); loadNotas();
+  } catch(e) { toast('Erro: ' + e.message, 'error'); }
+}
+
+// ─── WEBHOOK TEST ───────────────────────
+async function sendTestWebhook() {
+  const result = document.getElementById('test-result');
+  result.textContent = 'Enviando...'; result.style.color = 'var(--text2)';
+  try {
+    const r = await fetch('/webhook/nfe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+      fornecedor: 'EMPRESA TESTE LTDA', cnpj: '12.345.678/0001-90', numero: String(Math.floor(Math.random()*99999)), serie: '1',
+      chaveAcesso: Array.from({length:44},()=>Math.floor(Math.random()*10)).join(''), data: new Date().toISOString(),
+      naturezaOperacao: 'VENDA DE MERCADORIA', tipoOperacao: 'Entrada', valorRaw: 1500, valorProdutos: 1350, valorICMS: 243, valorFrete: 150, valorDesconto: 0,
+      destinatario: 'MINHA EMPRESA ME', destinatarioCnpj: '98.765.432/0001-10', email: 'nfe@teste.com.br', assunto: 'NF-e Teste',
+      received: new Date().toLocaleString('pt-BR'), temXml: true, temPdf: true, origem: 'n8n', parseSuccess: true, source: 'xml+pdf',
+      protocolo: '135'+Date.now().toString().slice(-10), totalProdutos: 2,
+      produtos: [{ descricao: 'PRODUTO A', qtd: 10, un: 'UN', vUnit: 85, vTotal: 850, ncm: '84719012', cfop: '5102' }, { descricao: 'PRODUTO B', qtd: 5, un: 'KG', vUnit: 100, vTotal: 500, ncm: '39201099', cfop: '5102' }]
+    }) });
+    const d = await r.json();
+    if (d.status === 'ok') { result.textContent = ''; toast('NFe de teste registrada (ID:'+d.id+')'); loadDashboard(); }
+    else if (d.status === 'duplicado') { result.textContent = ''; toast('NFe duplicada', 'warning'); }
+    else { result.textContent = ''; toast(d.error || 'Erro', 'error'); }
+  } catch(e) { result.textContent = ''; toast('Erro: ' + e.message, 'error'); }
+}
+function copyWebhook() { navigator.clipboard.writeText(document.getElementById('webhook-url-display').textContent); toast('URL copiado!'); }
+
+// ─── KEYBOARD ───────────────────────────
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeConfirm(false); } });
+
+// ─── INIT ───────────────────────────────
+loadDashboard();
+</script>
+</body>
+</html>
